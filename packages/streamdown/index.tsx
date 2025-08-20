@@ -6,9 +6,10 @@ import ReactMarkdown, { type Options } from 'react-markdown';
 import rehypeKatex from 'rehype-katex';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
+import type { BundledTheme } from 'shiki';
 import 'katex/dist/katex.min.css';
 import hardenReactMarkdownImport from 'harden-react-markdown';
-import { components as defaultComponents } from './lib/components';
+import { components as defaultComponents, createComponents } from './lib/components';
 import { parseMarkdownIntoBlocks } from './lib/parse-blocks';
 import { parseIncompleteMarkdown } from './lib/parse-incomplete-markdown';
 import { cn } from './lib/utils';
@@ -30,6 +31,7 @@ const HardenedMarkdown: ReturnType<typeof hardenReactMarkdown> =
 export type StreamdownProps = HardenReactMarkdownProps & {
   parseIncompleteMarkdown?: boolean;
   className?: string;
+  theme?: BundledTheme;
 };
 
 type BlockProps = HardenReactMarkdownProps & {
@@ -63,6 +65,7 @@ export const Streamdown = memo(
     rehypePlugins,
     remarkPlugins,
     className,
+    theme = 'github-light',
     ...props
   }: StreamdownProps) => {
     // Parse the children to remove incomplete markdown tokens if enabled
@@ -73,6 +76,8 @@ export const Streamdown = memo(
       [children]
     );
 
+    const themedComponents = useMemo(() => createComponents(theme), [theme]);
+
     return (
       <div className={cn('space-y-4', className)} {...props}>
         {blocks.map((block, index) => (
@@ -80,7 +85,7 @@ export const Streamdown = memo(
             allowedImagePrefixes={allowedImagePrefixes ?? ['*']}
             allowedLinkPrefixes={allowedLinkPrefixes ?? ['*']}
             components={{
-              ...defaultComponents,
+              ...themedComponents,
               ...components,
             }}
             content={block}
@@ -100,3 +105,5 @@ export const Streamdown = memo(
 Streamdown.displayName = 'Streamdown';
 
 export default Streamdown;
+export { createComponents } from './lib/components';
+export { CodeBlock, CodeBlockCopyButton, highlightCode } from './lib/code-block';

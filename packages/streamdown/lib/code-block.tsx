@@ -9,12 +9,13 @@ import {
   useEffect,
   useState,
 } from 'react';
-import { type BundledLanguage, codeToHtml } from 'shiki';
+import { type BundledLanguage, type BundledTheme, codeToHtml } from 'shiki';
 import { cn } from './utils';
 
 type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
   code: string;
   language: BundledLanguage;
+  theme?: BundledTheme;
 };
 
 type CodeBlockContextType = {
@@ -25,16 +26,17 @@ const CodeBlockContext = createContext<CodeBlockContextType>({
   code: '',
 });
 
-export async function highlightCode(code: string, language: BundledLanguage) {
+export async function highlightCode(code: string, language: BundledLanguage, theme: BundledTheme = 'github-light') {
   return await codeToHtml(code, {
     lang: language,
-    theme: 'github-light',
+    theme: theme,
   });
 }
 
 export const CodeBlock = ({
   code,
   language,
+  theme = 'github-light',
   className,
   children,
   ...props
@@ -44,7 +46,7 @@ export const CodeBlock = ({
   useEffect(() => {
     let isMounted = true;
 
-    highlightCode(code, language).then((result) => {
+    highlightCode(code, language, theme).then((result) => {
       if (isMounted) {
         setHtml(result);
       }
@@ -53,7 +55,7 @@ export const CodeBlock = ({
     return () => {
       isMounted = false;
     };
-  }, [code, language]);
+  }, [code, language, theme]);
 
   return (
     <CodeBlockContext.Provider value={{ code }}>

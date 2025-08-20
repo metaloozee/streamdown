@@ -1,10 +1,10 @@
 import { isValidElement } from 'react';
 import type { Options } from 'react-markdown';
-import type { BundledLanguage } from 'shiki';
+import type { BundledLanguage, BundledTheme } from 'shiki';
 import { CodeBlock, CodeBlockCopyButton } from './code-block';
 import { cn } from './utils';
 
-export const components: Options['components'] = {
+export const createComponents = (theme: BundledTheme = 'github-light'): Options['components'] => ({
   ol: ({ node, children, className, ...props }) => (
     <ol className={cn('ml-4 list-outside list-decimal', className)} {...props}>
       {children}
@@ -173,6 +173,7 @@ export const components: Options['components'] = {
         className={cn('my-4 h-auto rounded-lg border p-4', className)}
         code={code}
         language={language}
+        theme={theme}
       >
         <CodeBlockCopyButton />
       </CodeBlock>
@@ -188,4 +189,6 @@ export const components: Options['components'] = {
       {children}
     </sub>
   ),
-};
+});
+
+export const components: Options['components'] = createComponents();
